@@ -3,10 +3,6 @@
 
 import { defaultCow } from "./cows.ts";
 
-export function printCow() {
-  console.log("hello world");
-}
-
 export interface CowOptions {
   cow: string;
 }
