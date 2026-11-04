@@ -49,3 +49,7 @@ jobs:
 
       - name: Format
         run: pnpm run format:check
+
+      - name: Publish on NPM
+        if: "startsWith(github.ref, 'refs/tags/')"
+        run: pnpm stage publish --provenance --access public --no-git-checks
