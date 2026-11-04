@@ -4,16 +4,12 @@
 
 import cac from "cac";
 
-import { printCow } from "./index";
+import { say } from "./index.ts";
 
 const cli = cac();
 
-cli.option("--type <type>", "Choose a project type", {
-  default: "node",
-});
-
 const parsed = cli.parse();
 
-console.log(JSON.stringify(parsed, null, 2));
+console.log(parsed.options);
 
-printCow();
+console.log(say({ cow: "hello world" }));

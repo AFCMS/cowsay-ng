@@ -4,3 +4,5 @@ minimumReleaseAge: 360
 trustPolicy: no-downgrade
 
 pmOnFail: ignore
+
+nodeOptions: "${NODE_OPTIONS:-} --experimental-import-text"

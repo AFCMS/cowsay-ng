@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/AFCMS/cowsay-ng/issues"
   },
-  "license": "MIT",
+  "license": "MIT AND GPL-3.0-only",
   "author": "AFCMS <afcm.contact@gmail.com>",
   "repository": {
     "type": "git",
@@ -31,7 +31,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "start": "node --import @oxc-node/core/register ./src/cli.ts",
+    "start": "node --experimental-import-text ./src/cli.ts",
+    "cows:download": "node scripts/download-cows.ts",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest run",

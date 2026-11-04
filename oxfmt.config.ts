@@ -3,5 +3,5 @@ import { defineConfig } from "oxfmt";
 export default defineConfig({
   sortImports: true,
   sortPackageJson: true,
-  ignorePatterns: ["dist", "node_modules", "coverage", "build", ".agents"],
+  ignorePatterns: ["dist", "node_modules", "coverage", "build", ".agents", "src/cows"],
 });

@@ -2,6 +2,10 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig({
   entry: ["./src/index.ts", "./src/cli.ts"],
+  copy: ["./src/cows"],
+  inputOptions: {
+    external: [/\.cow$/],
+  },
   format: ["esm"],
   sourcemap: false,
   minify: true,
