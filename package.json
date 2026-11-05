@@ -1,6 +1,6 @@
 {
   "name": "@afcms/cowsay-ng",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Next-gen cowsay",
   "keywords": [
     "ascii-art",
