@@ -1,5 +1,6 @@
 ---
 name: CI
+
 on:
   push:
     branches:
@@ -18,12 +19,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  main:
-    name: Main
+  build:
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write # Required for npm provenance
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,15 +33,19 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
         with:
           install: true
+          require-lockfile: true
 
       - name: Build
-        run: pnpm build
+        run: pnpm run build
 
-      - name: Type Check
-        run: pnpm run typecheck
+      - name: Lint
+        run: pnpm run lint --type-check
+
+      - name: Format check
+        run: pnpm run format:check
 
       - name: Tests
         run: pnpm run test
@@ -47,12 +53,50 @@ jobs:
       - name: Packed Package Checks
         run: pnpm run check:package
 
-      - name: Lint
-        run: pnpm run lint
+      - name: Pack
+        id: pack
+        run: |-
+          TARBALL=$(pnpm pack | tail -n 1)
+          echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
 
-      - name: Format
-        run: pnpm run format:check
+      - name: Upload Tarball
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          archive: false
+          path: ${{ steps.pack.outputs.tarball }}
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    if: "github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')"
+    environment: npm
+    permissions:
+      contents: write # Required to create the GitHub release and upload the tarball
+      id-token: write # Required for OIDC authentication with npm
+    env:
+      TARBALL: ${{ needs.build.outputs.tarball }}
+    steps:
+      - name: Download Tarball
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ${{ env.TARBALL }}
+
+      - name: Install PNPM
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          runtime: node@^26
+          version: 12
 
       - name: Publish on NPM
-        if: "startsWith(github.ref, 'refs/tags/')"
-        run: pnpm stage publish --provenance --access public --no-git-checks
+        run: pnpm stage publish --provenance --access public $TARBALL
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |-
+          gh release create "$GITHUB_REF_NAME" "$TARBALL" \
+            --verify-tag \
+            --title "$GITHUB_REF_NAME" \
+            --notes ""
