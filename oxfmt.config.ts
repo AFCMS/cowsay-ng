@@ -13,5 +13,6 @@ export default defineConfig({
     "src/catalog.ts",
     "src/unicode-width.ts",
     "tests/fixtures",
+    ".github/workflows/actions.lock",
   ],
 });
