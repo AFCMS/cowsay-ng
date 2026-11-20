@@ -6,3 +6,7 @@ trustPolicy: no-downgrade
 pmOnFail: ignore
 
 nodeOptions: "${NODE_OPTIONS:-} --experimental-import-text"
+
+permissions:
+  tsdown:
+    skills: true
