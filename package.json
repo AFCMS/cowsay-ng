@@ -13,11 +13,21 @@
     "url": "https://github.com/AFCMS/cowsay-ng/issues"
   },
   "license": "MIT AND GPL-3.0-only",
-  "author": "AFCMS <afcm.contact@gmail.com>",
+  "author": {
+    "name": "AFCMS",
+    "email": "afcm.contact@gmail.com",
+    "url": "https://afcms.dev"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AFCMS/cowsay-ng.git"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/AFCMS"
+    }
+  ],
   "bin": {
     "cowsay-ng": "./dist/bin/cowsay.mjs",
     "cowthink-ng": "./dist/bin/cowthink.mjs"
@@ -47,6 +57,10 @@
       "import": "./dist/cows/*.mjs"
     },
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "start": "node --experimental-import-text ./dist/bin/cowsay.mjs",
@@ -97,6 +111,6 @@
     }
   },
   "engines": {
-    "node": "^26"
+    "node": ">=26"
   }
 }
