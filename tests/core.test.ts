@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
@@ -36,6 +37,46 @@ describe("pinned cowsay-org reference output", () => {
 });
 
 describe("safe compilation", () => {
+  it("ignores whitespace and comment lines before the heredoc", () => {
+    const compiled = compileCow(" \t\r\n\u00a0\u2028\n \t# comment\r\n$the_cow = <<EOC;\nx\nEOC\n");
+    expect(say("", { cow: compiled })).toContain("x\n");
+  });
+  it.each(["", "$the_cow=<<A"])(
+    "rejects long whitespace runs after %j without excessive backtracking",
+    (prefix) => {
+      const compiler = new URL("../src/compiler.ts", import.meta.url).href;
+      const result = spawnSync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "--eval",
+          `import assert from "node:assert/strict";
+import { compileCow } from ${JSON.stringify(compiler)};
+assert.throws(() => compileCow(${JSON.stringify(prefix)} + " ".repeat(100_000) + "!"), /Expected a \\$the_cow heredoc assignment/);`,
+        ],
+        { encoding: "utf8", timeout: 2000 },
+      );
+      expect(result.error).toBeUndefined();
+      expect(result.status, result.stderr).toBe(0);
+    },
+  );
+  it.each(["", ";", " \t", " \t; \t", " # comment", " ; # comment"])(
+    "accepts header suffix %j with each delimiter and line ending",
+    (suffix) => {
+      for (const delimiter of ["EOC", '"EOC"', "'EOC'"]) {
+        for (const newline of ["\n", "\r\n"]) {
+          const compiled = compileCow(
+            ` \t$the_cow \t= \t<<${delimiter}${suffix}${newline}x${newline}EOC${newline}`,
+          );
+          expect(say("", { cow: compiled })).toContain(`x${newline}`);
+        }
+      }
+    },
+  );
+  it("accepts long whitespace runs in valid headers", () => {
+    const compiled = compileCow(`$the_cow=<<A${" ".repeat(100_000)}\nx\nA\n`);
+    expect(say("", { cow: compiled })).toContain("x\n");
+  });
   it("keeps substitutions literal and compiled cows opaque, immutable, and reusable", () => {
     const compiled = compileCow("$the_cow = <<EOC;\n${eyes} $tongue $thoughts\\n\nEOC\n");
     expect(Object.isFrozen(compiled)).toBe(true);

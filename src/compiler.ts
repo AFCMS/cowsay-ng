@@ -13,8 +13,8 @@ interface Program {
 
 const lineBoundaryPattern = /(?<=\n)/;
 const heredocHeaderPattern =
-  /^\s*\$the_cow\s*=\s*<<(?:(['"])([A-Za-z_]\w*)\1|([A-Za-z_]\w*))\s*;?\s*(?:#.*)?\r?\n?$/;
-const ignoredLinePattern = /^\s*(?:#[^\n]*)?\s*$/;
+  /^\s*\$the_cow\s*=\s*<<(?:(['"])([A-Za-z_]\w*)\1|([A-Za-z_]\w*))\s*(?:;\s*)?(?:#.*)?\r?\n?$/;
+const ignoredLinePattern = /^\s*(?:#[^\n]*\n?)?$/;
 const smallPreludePattern = /^\$eyes\s*=\s*"\.\."\s+unless\s*\(\s*\$eyes\s*\)\s*;$/;
 const susPreludePattern = /^\$eyes\s*=\s*'  '\s+unless\s*\(\s*\$eyes\s+ne\s+'oo'\s*\)\s*;$/;
 const threeEyesPreludePattern =
