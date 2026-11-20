@@ -24,12 +24,16 @@ describe("Perl option adapter", () => {
     expect(parseCliArgs(["-", "-b"]).message).toEqual(["-", "-b"]);
     expect(parseCliArgs(["0"]).message).toEqual(["0"]);
   });
-  it.each([["-f"], ["-q"], ["--unknown"], ["-W1"], ["-W2.5"], ["-WInfinity"]])(
-    "rejects invalid arguments %j",
-    (...args) => {
-      expect(() => parseCliArgs(args)).toThrow();
-    },
-  );
+  it.each([
+    { args: ["-f"], message: "Option -f requires a value" },
+    { args: ["-q"], message: "Unknown option: -q" },
+    { args: ["--unknown"], message: "Unknown option: --unknown" },
+    { args: ["-W1"], message: "-W must be an integer of at least 2" },
+    { args: ["-W2.5"], message: "-W must be an integer of at least 2" },
+    { args: ["-WInfinity"], message: "-W must be an integer of at least 2" },
+  ])("rejects invalid arguments $args", ({ args, message }) => {
+    expect(() => parseCliArgs(args)).toThrow(message);
+  });
   it.each(["", "0", "00", "01", "true", "false", "-d", "--", "=", ":value"])(
     "preserves string option values %j without coercion",
     (value) => {
